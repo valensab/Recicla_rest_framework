@@ -1,10 +1,9 @@
-from sre_parse import State
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from publications.models import Publication
-from publications.api.serializers import PublicationSerializer,SearchSerializer
+from publications.api.serializers import PublicationSerializer, SearchSerializer
 
 @api_view(['GET'])
 def publication_list(request):
@@ -21,16 +20,30 @@ def publication_list(request):
 @api_view(['DELETE'])
 def publication_delete(request,pk=None):
     # queryset
-    publication = Publication.objects.filter(id_publication= pk).first()
+    print(pk)
+    publication = Publication.objects.filter(id_publication = pk).first()
 
     # validation
     if publication:
         if request.method == 'DELETE':
             publication.state = False
-            publication.save()
+            publication.delete()
             return Response({'message':'La publicación fue eliminada correctamente!'},status = status.HTTP_200_OK)
 
     return Response({'message':'No se ha encontrado ninguna publicación con estos datos'},status = status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def publication_count(request):
+
+    if request.method == 'GET':
+        publications_count = Publication.objects.filter(state = True).count()
+        data = {
+            "count": publications_count
+        }
+        return Response(data,status = status.HTTP_200_OK)
+    
+    else:
+        return Response({'Solo se soporta metodo GET'},status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def publications_availables(request, pk = None):
@@ -41,11 +54,7 @@ def publications_availables(request, pk = None):
         if publication_count == 0:
             return Response({'message': 'No hay publicaciones realizadas'},status = status.HTTP_200_OK)
         else:
-            data = {
-                'Número de publicaciones': publication_count,
-                "Publicaciones": publication_serializer.data,
-            }
-            return Response(data,status = status.HTTP_200_OK)
+            return Response(publication_serializer.data,status = status.HTTP_200_OK)
     else:
         return Response({'Solo se soporta método GET'},status = status.HTTP_400_BAD_REQUEST)
 
@@ -82,3 +91,4 @@ def publication_filter(request, pk = None):
             return Response(data,status = status.HTTP_200_OK)
     else:
         return Response({'Solo se soporta método GET'},status = status.HTTP_400_BAD_REQUEST)
+
