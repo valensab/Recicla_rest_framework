@@ -50,3 +50,9 @@ class SearchSerializer(serializers.ModelSerializer):
             'id_request': instance.id_request,
             'state_request': instance.state
         }
+
+class RequestAcceptSerializer(serializers.ModelSerializer):  
+    
+    class Meta:
+        model = Request
+        fields = [ 'id_request','publication', 'recycler']

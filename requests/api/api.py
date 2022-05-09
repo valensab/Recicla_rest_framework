@@ -33,34 +33,6 @@ def requests_availables(request, pk = None):
         return Response({'Solo se soporta método GET'},status = status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST','OPTIONS'])
-def reject_request(request,pk=None):
-    request_recycler = Request.objects.filter(id_request = pk, is_active = True).first()
-    if request_recycler:
-        if request.method == 'POST':
-            request_recycler.is_active = False
-            request_recycler.state = "Rechazada"
-            request_recycler.comments = "La solicitud ha sido rechazada"
-            request_recycler.save()
-            
-            return Response({"message": "La solicitud fue rechazada"},status = status.HTTP_200_OK)
-        else:
-            return Response({'message':'Error al cambiar el estado de la solicitud'},status = status.HTTP_400_BAD_REQUEST)
-            
-@api_view(['POST','OPTIONS'])
-def reject_request(request,pk=None):
-    request_recycler = Request.objects.filter(id_request = pk, is_active = True).first()
-    if request_recycler:
-        if request.method == 'POST':
-            request_recycler.is_active = False
-            request_recycler.state = "Cancelada"
-            request_recycler.comments = "El reciclador canceló la solicitud"
-            request_recycler.save()
-            
-            return Response({"message": "La solicitud fue rechazada"},status = status.HTTP_200_OK)
-        else:
-            return Response({'message':'Error al cambiar el estado de la solicitud'},status = status.HTTP_400_BAD_REQUEST)
-
-@api_view(['POST','OPTIONS'])
 def accepted_request(request,pk=None):
     request_recycler = Request.objects.filter(id_request = pk, is_active = True).first()
     if request_recycler:
@@ -82,19 +54,22 @@ def accepted_request(request,pk=None):
             return Response({"message": "La solicitud fue aceptada"},status = status.HTTP_200_OK)
         else:
             return Response({'message':'Error al cambiar el estado de la solicitud'},status = status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({'message':'La solicitud ya fue contestada'},status = status.HTTP_400_BAD_REQUEST)
 
-
-
-@api_view(['PUT','OPTIONS'])
-def reject_request2(request,pk=None):
-    request_user = Request.objects.filter(id_request = pk, is_active = True).first()
-    serializer = RequestSerializer(request_user, data= request.data)
-    if request.method == 'PUT':
-        if serializer.is_valid():
-            serializer.save()   
+@api_view(['POST','OPTIONS'])
+def reject_request(request,pk=None):
+    request_recycler = Request.objects.filter(id_request = pk, is_active = True).first()
+    if request_recycler:
+        if request.method == 'POST':
+            request_recycler.is_active = False
+            request_recycler.state = "Rechazada"
+            request_recycler.comments = "La solicitud ha sido rechazada"
+            request_recycler.save()
+            
             return Response({"message": "La solicitud fue rechazada"},status = status.HTTP_200_OK)
         else:
             return Response({'message':'Error al cambiar el estado de la solicitud'},status = status.HTTP_400_BAD_REQUEST)
-    return Response({'message':'Error al cambiar el estado de la solicitud'},status = status.HTTP_400_BAD_REQUEST)
-
+    else:
+        return Response({'message':'La solicitud ya fue contestada'},status = status.HTTP_400_BAD_REQUEST)
 
